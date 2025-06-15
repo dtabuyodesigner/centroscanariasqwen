@@ -1,7 +1,7 @@
 let schoolData = [];
 
 // Cargar datos desde el JSON
-fetch('centros.json')
+fetch('centros_procesados.json')
   .then(response => response.json())
   .then(data => {
     schoolData = data;
@@ -9,12 +9,21 @@ fetch('centros.json')
     applyFilters();
     initMap();
   })
-  .catch(error => console.error("Error al cargar los datos:", error));
+  .catch(error => {
+    console.error("Error al cargar los datos:", error);
+    document.getElementById("resultados").innerHTML = "<p>No se pudieron cargar los datos.</p>";
+  });
 
+// Función para generar opciones de filtros
 function renderFilters() {
   const filterIsla = document.getElementById("filter-isla");
   const filterTipo = document.getElementById("filter-tipo");
   const filterZona = document.getElementById("filter-zona");
+
+  // Limpiar selects antes de rellenar
+  filterIsla.innerHTML = '<option value="all">Todas las Islas</option>';
+  filterTipo.innerHTML = '<option value="all">Todos los Tipos</option>';
+  filterZona.innerHTML = '<option value="all">Todas las Zonas</option>';
 
   // Rellenar islas
   const islas = [...new Set(schoolData.map(item => item.Isla))];
@@ -42,8 +51,14 @@ function renderFilters() {
     option.textContent = zona;
     filterZona.appendChild(option);
   });
+
+  // Añadir eventos a los filtros
+  filterIsla.addEventListener("change", applyFilters);
+  filterTipo.addEventListener("change", applyFilters);
+  filterZona.addEventListener("change", applyFilters);
 }
 
+// Función para aplicar filtros
 function applyFilters() {
   const selectedIsla = document.getElementById("filter-isla").value;
   const selectedTipo = document.getElementById("filter-tipo").value;
@@ -62,6 +77,7 @@ function applyFilters() {
   initMap(filtered);
 }
 
+// Función para mostrar resultados
 function renderResults(data) {
   const resultadosDiv = document.getElementById("resultados");
   resultadosDiv.innerHTML = "";
@@ -82,13 +98,14 @@ function renderResults(data) {
       <p><strong>Tipo:</strong> ${school.Tipo}</p>
       <p><strong>Aeropuerto:</strong> ${school.Aeropuerto}</p>
       <p><strong>Distancia:</strong> ${school.Distancia_al_Aeropuerto} km</p>
-      <a href="https://www.google.com/maps?q=${school.coordenadas}" target="_blank">Ver en Google Maps</a>
+      <a href="https://www.google.com/maps?q=${encodeURIComponent(school.coordenadas)}" target="_blank">Ver en Google Maps</a>
     `;
 
     resultadosDiv.appendChild(div);
   });
 }
 
+// Función para inicializar el mapa
 function initMap(data = schoolData) {
   const map = new google.maps.Map(document.getElementById("map"), {
     zoom: 7,
@@ -96,11 +113,15 @@ function initMap(data = schoolData) {
   });
 
   data.forEach(school => {
-    const [lat, lng] = school.coordenadas.split(',').map(Number);
-    new google.maps.Marker({
-      position: { lat, lng },
-      map: map,
-      title: school.Nombre
-    });
+    try {
+      const [lat, lng] = school.coordenadas.split(',').map(Number);
+      new google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+        title: school.Nombre
+      });
+    } catch (e) {
+      console.warn(`Coordenadas inválidas para ${school.Nombre}:`, school.coordenadas);
+    }
   });
 }
