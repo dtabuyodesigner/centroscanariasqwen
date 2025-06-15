@@ -1,0 +1,46 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  padding: 8px;
+  font-size: 1rem;
+}
+
+.results {
+  margin-top: 20px;
+}
+
+.result-item {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.result-item h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.result-item p {
+  margin: 5px 0;
+  color: #555;
+}
